@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "type": "module",
   "description": "oRPC permissions as another layer of abstraction!",
-  "repository": "https://github.com/omar-dulaimi/orpc-shield",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omar-dulaimi/orpc-shield.git"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
