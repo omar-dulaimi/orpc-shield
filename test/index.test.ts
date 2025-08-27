@@ -108,9 +108,7 @@ describe('module exports', () => {
 
   it('should maintain compatibility with previous API', async () => {
     // Test that the main exports work as expected
-    const { rule, allow, deny, and, or, not, shield, ShieldError } = await import(
-      '../src/index.js'
-    );
+    const { rule, allow, and, shield, ShieldError } = await import('../src/index.js');
 
     // Create a simple rule
     const testRule = rule()((params) => {
@@ -142,7 +140,8 @@ describe('module exports', () => {
 
 describe('API compatibility', () => {
   it('should work with CommonJS require', () => {
-    const orpcShield = require('../dist/index.js');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const orpcShield = require('../dist/src/index.js');
 
     expect(orpcShield.rule).toBeDefined();
     expect(orpcShield.allow).toBeDefined();
@@ -250,7 +249,10 @@ describe('runtime type checking', () => {
     expect(middleware.length).toBe(1); // Should accept one parameter object
 
     // Should work with mock parameters
-    const mockNext = async ({ context }: { context: any }) => context;
+    const mockNext = async ({ context }: { context: any }): Promise<unknown> => {
+      await Promise.resolve(); // Satisfy require-await
+      return context;
+    };
 
     const result = await middleware({
       context: { test: true },
