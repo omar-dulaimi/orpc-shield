@@ -9,7 +9,7 @@ This is **orpc-shield**, a TypeScript library that provides a permission layer
 for oRPC applications. It's inspired by GraphQL Shield and allows developers to
 define authorization rules as middleware for oRPC procedures.
 
-**Version 1.0.0+** supports oRPC v1.x, providing a path-based permissions system
+**Version 0.0.1+** supports oRPC v1.x, providing a path-based permissions system
 that matches oRPC's single procedure model.
 
 ## Build and Development Commands
