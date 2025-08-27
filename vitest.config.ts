@@ -66,10 +66,12 @@ export default defineConfig({
       enabled: false, // We use tsc for type checking separately
     },
 
-    // Mock configuration
-    deps: {
-      // Allow mocking of node modules
-      external: [],
+    // Server configuration
+    server: {
+      deps: {
+        // Allow mocking of node modules
+        external: [],
+      },
     },
 
     // Setup files
