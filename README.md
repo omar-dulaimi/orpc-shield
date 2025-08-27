@@ -1,7 +1,7 @@
 # oRPC Shield
 
 A powerful authorization layer for [oRPC](https://orpc.unnoq.com/) applications,
-inspired by [GraphQL Shield](https://the-guild.dev/graphql/shield). Define
+inspired by [tRPC Shield](https://github.com/omar-dulaimi/trpc-shield). Define
 authorization rules as middleware for your oRPC procedures.
 
 [![npm version](https://badge.fury.io/js/orpc-shield.svg)](https://badge.fury.io/js/orpc-shield)
