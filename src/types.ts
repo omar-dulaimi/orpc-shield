@@ -12,7 +12,7 @@ export type RuleResult = boolean | string | Error;
 /**
  * Context type for oRPC middleware
  */
-export type ORPCContext<T = any> = T;
+export type ORPCContext = import('@orpc/server').Context;
 
 /**
  * Input type for oRPC procedures
@@ -71,34 +71,32 @@ export interface ShieldOptions<TContext = ORPCContext> {
   denyErrorCode?: string;
 }
 
-/**
- * oRPC v1.8.5 compatible middleware types
- */
-export interface MiddlewareOptions<TContext = ORPCContext> {
-  context: TContext;
-  path: readonly string[];
-  next: (options?: { context?: TContext }) => MiddlewareResult<TContext>;
-  procedure?: any;
-  signal?: AbortSignal;
-  lastEventId?: string | undefined;
-  errors?: any;
-}
+// Align middleware types with @orpc/server
+export type MiddlewareOptions<
+  TInContext extends import('@orpc/server').Context = import('@orpc/server').Context,
+  TOutput = unknown,
+  TErrorMap extends
+    import('@orpc/server').ORPCErrorConstructorMap<any> = import('@orpc/server').ORPCErrorConstructorMap<
+    Record<never, never>
+  >,
+  TMeta extends import('@orpc/server').Meta = import('@orpc/server').Meta,
+> = import('@orpc/server').MiddlewareOptions<TInContext, TOutput, TErrorMap, TMeta>;
 
-export interface MiddlewareResult<TContext = ORPCContext> {
-  output: any;
-  context: TContext;
-}
+export type MiddlewareResult<
+  TInContext extends import('@orpc/server').Context = import('@orpc/server').Context,
+  TOutput = unknown,
+> = import('@orpc/server').MiddlewareResult<TInContext, TOutput>;
 
-/**
- * oRPC Middleware function type - compatible with oRPC v1.8.5
- * Updated to be more flexible with context types to handle merged contexts
- */
-export type ORPCMiddleware<TContext = any> = (
-  options: MiddlewareOptions<TContext>,
-  input: any
-) => MiddlewareResult<TContext> | Promise<MiddlewareResult<TContext>>;
+export type ORPCMiddleware<
+  TContext extends import('@orpc/server').Context = import('@orpc/server').Context,
+  TInContext extends import('@orpc/server').Context = TContext,
+  TInput = unknown,
+  TOutput = unknown,
+  TErrorMap extends
+    import('@orpc/server').ORPCErrorConstructorMap<any> = import('@orpc/server').ORPCErrorConstructorMap<
+    Record<never, never>
+  >,
+  TMeta extends import('@orpc/server').Meta = import('@orpc/server').Meta,
+> = import('@orpc/server').Middleware<TContext, TInContext, TInput, TOutput, TErrorMap, TMeta>;
 
-/**
- * Context type that can be used with oRPC's Context type
- */
-export type Context = any;
+export type Context = ORPCContext;

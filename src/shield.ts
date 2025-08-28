@@ -1,7 +1,7 @@
 import type {
+  Context,
   IRule,
   IRules,
-  MiddlewareOptions,
   MiddlewareResult,
   ORPCMiddleware,
   Path,
@@ -95,7 +95,7 @@ function processRuleResult(result: RuleResult, path: Path): void {
 /**
  * Creates oRPC shield middleware from a rule tree
  */
-export function shield<TContext = any>(
+export function shield<TContext extends Context = Context>(
   rules: IRules<TContext>,
   options: ShieldOptions<TContext> = {}
 ): ORPCMiddleware<TContext> {
@@ -109,10 +109,11 @@ export function shield<TContext = any>(
   // Validate rule tree structure
   validateRuleTree(rules);
 
-  return async function shieldMiddleware(
-    options: MiddlewareOptions<TContext>,
-    input: any
-  ): Promise<MiddlewareResult<TContext>> {
+  const middleware: ORPCMiddleware<TContext> = async (
+    options,
+    input,
+    _output
+  ): Promise<MiddlewareResult<TContext>> => {
     const { context, path, next } = options;
 
     try {
@@ -172,12 +173,13 @@ export function shield<TContext = any>(
       throw new ShieldError(message, path);
     }
   };
+  return middleware;
 }
 
 /**
  * Creates a shield with debug logging enabled
  */
-export function shieldDebug<TContext = any>(
+export function shieldDebug<TContext extends Context = Context>(
   rules: IRules<TContext>,
   options: Omit<ShieldOptions<TContext>, 'debug'> = {}
 ): ORPCMiddleware<TContext> {
@@ -187,7 +189,7 @@ export function shieldDebug<TContext = any>(
 /**
  * Convenience helper: map denials to ORPCError('FORBIDDEN') for HTTP-friendly responses.
  */
-export function shieldForORPC<TContext = any>(
+export function shieldForORPC<TContext extends Context = Context>(
   rules: IRules<TContext>,
   options: Omit<ShieldOptions<TContext>, 'denyErrorCode'> = {}
 ): ORPCMiddleware<TContext> {

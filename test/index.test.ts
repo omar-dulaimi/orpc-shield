@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /**
  * Tests for module exports and public API
  */
@@ -246,7 +247,7 @@ describe('runtime type checking', () => {
 
     // Should be a function that accepts specific parameters
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(2); // Should accept options and input
+    expect(middleware.length).toBe(3); // options, input, output
 
     // Should work with mock parameters
     const mockNext = ({ context }: { context?: any } = {}) => ({
@@ -261,8 +262,9 @@ describe('runtime type checking', () => {
         context: { test: true },
         path: ['test'],
         next: mockNext,
-      },
-      {}
+      } as any,
+      {},
+      _mockOutput
     );
 
     expect(result.context).toEqual({ test: true });

@@ -1,14 +1,7 @@
 /**
  * Test setup utilities and helpers for oRPC Shield tests
  */
-import type {
-  MiddlewareOptions,
-  MiddlewareResult,
-  ORPCContext,
-  ORPCInput,
-  ORPCMiddleware,
-  Path,
-} from '../../src/types.js';
+import type { ORPCContext, ORPCInput, Path } from '../../src/types.js';
 
 /**
  * Mock context for testing
@@ -65,12 +58,12 @@ export function createAdminContext(
  * Mock oRPC middleware executor for testing
  */
 export class MockMiddlewareExecutor<TContext = ORPCContext> {
-  private middlewares: ORPCMiddleware<TContext>[] = [];
+  private middlewares: any[] = [];
 
   /**
    * Adds a middleware to the execution chain
    */
-  use(middleware: ORPCMiddleware<TContext>): this {
+  use(middleware: any): this {
     this.middlewares.push(middleware);
     return this;
   }
@@ -94,17 +87,19 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
         return ({ context: nextContext }: { context?: TContext } = {}) => {
           currentContext = nextContext ?? currentContext;
           if (index < this.middlewares.length - 1) {
-            const nextOptions: MiddlewareOptions<TContext> = {
+            const nextOptions: any = {
               context: currentContext,
               path,
               next: createNext(index + 1),
             };
 
-            const _outputFn = (output: any): MiddlewareResult<TContext> => ({
+            const outputFn = (output: unknown): any => ({
               output,
               context: currentContext,
             });
-            const result = this.middlewares[index + 1](nextOptions, input);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            const result = this.middlewares[index + 1](nextOptions, input, outputFn);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return result instanceof Promise ? { output: result, context: currentContext } : result;
           }
           return { output: result, context: currentContext };
@@ -113,18 +108,18 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
 
       // Create output function for final result
 
-      const _outputFn = (output: any): MiddlewareResult<TContext> => ({
-        output,
-        context: currentContext,
-      });
-
       if (this.middlewares.length > 0) {
-        const options: MiddlewareOptions<TContext> = {
+        const options: any = {
           context: currentContext,
           path,
           next: createNext(0),
         };
-        const middlewareResult = await this.middlewares[0](options, input);
+        const outputFn = (output: unknown): any => ({
+          output,
+          context: currentContext,
+        });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        const middlewareResult = await this.middlewares[0](options, input, outputFn);
         result = middlewareResult.output;
         currentContext = middlewareResult.context;
       }
@@ -139,9 +134,9 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
 /**
  * Creates a simple test procedure that returns success
  */
-export function createTestProcedure(result: any = { success: true }) {
+export function createTestProcedure<T = unknown>(result: T = { success: true } as unknown as T) {
   // eslint-disable-next-line @typescript-eslint/require-await
-  return async () => result;
+  return async (): Promise<T> => result;
 }
 
 /**

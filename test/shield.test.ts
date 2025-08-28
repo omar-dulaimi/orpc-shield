@@ -1,6 +1,7 @@
 /**
  * Tests for shield middleware generation and execution
  */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { describe, expect, it, vi } from 'vitest';
 import { ShieldError, shield, shieldDebug } from '../src/shield.js';
 import { allow, deny, rule } from '../src/rule.js';
@@ -28,7 +29,7 @@ describe('shield middleware creation', () => {
     const middleware = shield(rules);
 
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(2); // Should accept options and input
+    expect(middleware.length).toBe(3); // options, input, output
   });
 
   it('should validate rule tree structure', () => {
@@ -422,6 +423,7 @@ describe('shield path resolution', () => {
     };
 
     const executor = new MockMiddlewareExecutor<TestContext>();
+
     executor.use(shield(rules, { fallbackRule: deny }));
 
     // Different case should not match
@@ -643,8 +645,9 @@ describe('shield middleware integration', () => {
         context,
         path: TestPaths.users.list,
         next: mockNext,
-      },
-      {}
+      } as any,
+      {},
+      _mockOutput
     );
 
     expect(nextCalled).toBe(true);
@@ -673,8 +676,9 @@ describe('shield middleware integration', () => {
           context: createTestContext(),
           path: TestPaths.users.list,
           next: mockNext,
-        },
-        {}
+        } as any,
+        {},
+        _mockOutput
       )
     ).rejects.toThrow(ShieldError);
 
@@ -705,8 +709,9 @@ describe('shield middleware integration', () => {
         context: originalContext,
         path: TestPaths.users.list,
         next: mockNext,
-      },
-      {}
+      } as any,
+      {},
+      _mockOutput
     );
 
     expect(receivedContext).toBe(originalContext);
