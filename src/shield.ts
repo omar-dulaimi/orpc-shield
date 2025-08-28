@@ -1,10 +1,10 @@
 import type {
   IRule,
   IRules,
-  ORPCContext,
-  ORPCMiddleware,
   MiddlewareOptions,
   MiddlewareResult,
+  ORPCContext,
+  ORPCMiddleware,
   Path,
   RuleResult,
   ShieldOptions,
@@ -110,10 +110,10 @@ export function shield<TContext = ORPCContext>(
   return async function shieldMiddleware(
     options: MiddlewareOptions<TContext>,
     input: any,
-    output: (output: any) => MiddlewareResult<TContext>
+    _output: (output: any) => MiddlewareResult<TContext>
   ): Promise<MiddlewareResult<TContext>> {
     const { context, path, next } = options;
-    
+
     try {
       if (debug) {
         console.log(`[oRPC Shield] Processing path: ${path.join('.')}`);

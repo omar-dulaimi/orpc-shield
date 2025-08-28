@@ -11,9 +11,9 @@ import {
   createAdminContext,
   createAuthenticatedContext,
   createTestContext,
+  type TestContext,
 } from './helpers/setup.js';
 import { TestRules } from './helpers/rules.js';
-import type { TestContext } from './helpers/setup.js';
 import type { IRules } from '../src/types.js';
 
 describe('shield middleware creation', () => {
@@ -630,7 +630,7 @@ describe('shield middleware integration', () => {
     let nextCalled = false;
     const mockNext = vi.fn(({ context: nextContext } = {}) => {
       nextCalled = true;
-      return { output: { data: 'success' }, context: nextContext || context };
+      return { output: { data: 'success' }, context: nextContext ?? context };
     });
 
     const middleware = shield(rules);

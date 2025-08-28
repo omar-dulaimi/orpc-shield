@@ -1,7 +1,14 @@
 /**
  * Test setup utilities and helpers for oRPC Shield tests
  */
-import type { ORPCContext, ORPCInput, ORPCMiddleware, MiddlewareOptions, MiddlewareResult, Path } from '../../src/types.js';
+import type {
+  MiddlewareOptions,
+  MiddlewareResult,
+  ORPCContext,
+  ORPCInput,
+  ORPCMiddleware,
+  Path,
+} from '../../src/types.js';
 
 /**
  * Mock context for testing
@@ -85,7 +92,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
       // Create the next function chain
       const createNext = (index: number) => {
         return ({ context: nextContext }: { context?: TContext } = {}) => {
-          currentContext = nextContext || currentContext;
+          currentContext = nextContext ?? currentContext;
           if (index < this.middlewares.length - 1) {
             const nextOptions: MiddlewareOptions<TContext> = {
               context: currentContext,
@@ -94,7 +101,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
             };
             const outputFn = (output: any): MiddlewareResult<TContext> => ({
               output,
-              context: currentContext
+              context: currentContext,
             });
             return this.middlewares[index + 1](nextOptions, input, outputFn);
           }
@@ -105,7 +112,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
       // Create output function for final result
       const outputFn = (output: any): MiddlewareResult<TContext> => ({
         output,
-        context: currentContext
+        context: currentContext,
       });
 
       if (this.middlewares.length > 0) {

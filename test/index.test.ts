@@ -250,8 +250,8 @@ describe('runtime type checking', () => {
 
     // Should work with mock parameters
     const mockNext = ({ context }: { context?: any } = {}) => ({
-      output: context || { test: true },
-      context: context || { test: true }
+      output: context ?? { test: true },
+      context: context ?? { test: true },
     });
 
     const mockOutput = (output: any) => ({ output, context: { test: true } });
