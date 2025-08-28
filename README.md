@@ -110,11 +110,8 @@ const canModify = and(canEdit, or(canAdmin, allow));
 
 </details>
 
-## Legal
-
-- License: MIT — see the `LICENSE` file.
-- Copyright © 2022–2025 Omar Dulaimi.
-- All product names, logos, and brands are property of their respective owners.
+<details>
+<summary><b>Full Documentation</b></summary>
 
 ## 📖 Documentation
 
@@ -564,6 +561,8 @@ const permissions = shield({
 });
 ```
 
+</details>
+
 ## 🔗 Related Projects
 
 - [oRPC](https://orpc.unnoq.com/) - The RPC framework this library is built for
@@ -574,23 +573,17 @@ const permissions = shield({
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md)
-for details.
+We welcome contributions! Please open issues or pull requests. Follow
+Conventional Commits and ensure a clean run of lint, typecheck, and tests.
 
 ### Development Setup
 
 ```bash
 git clone https://github.com/omar-dulaimi/orpc-shield
 cd orpc-shield
-npm install
-npm test
+pnpm i
+pnpm typecheck && pnpm lint && pnpm test
 ```
-
-## 📄 License
-
-MIT © [Omar Dulaimi](https://github.com/omar-dulaimi)
-
----
 
 <div align="center">
 
@@ -601,3 +594,8 @@ MIT © [Omar Dulaimi](https://github.com/omar-dulaimi)
 Made with ❤️ by [Omar Dulaimi](https://github.com/omar-dulaimi)
 
 </div>
+
+## Legal
+
+- License: MIT — see the `LICENSE` file.
+- Copyright © 2025 Omar Dulaimi.
