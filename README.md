@@ -2,132 +2,119 @@
 
 <div align="center">
 
-A powerful, type-safe authorization layer for [oRPC](https://orpc.unnoq.com/)
-applications, inspired by
-[tRPC Shield](https://github.com/omar-dulaimi/trpc-shield).
+Type‑safe authorization for modern oRPC apps — lightweight, composable, fast.
 
 <p>
   <a href="https://www.npmjs.com/package/orpc-shield"><img src="https://img.shields.io/npm/v/orpc-shield?style=flat-square&color=blue" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/orpc-shield"><img src="https://img.shields.io/npm/dm/orpc-shield?style=flat-square&color=green" alt="npm downloads" /></a>
-  <a href="https://bundlephobia.com/package/orpc-shield"><img src="https://img.shields.io/bundlephobia/minzip/orpc-shield?style=flat-square&color=orange" alt="Bundle Size" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-yellow.svg?style=flat-square" alt="License: MIT" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0+-blue.svg?style=flat-square&logo=typescript" alt="TypeScript" /></a>
 </p>
 
-### 💖 Support This Project
-
-<p>
-  <a href="https://github.com/sponsors/omar-dulaimi">
-    <img src="https://img.shields.io/badge/💖_Support_me_on-GitHub_Sponsors-ff69b4.svg?style=for-the-badge" alt="Support me on GitHub Sponsors" />
-  </a>
-</p>
-
-**Love using oRPC Shield?** Consider
-[sponsoring me on GitHub Sponsors](https://github.com/sponsors/omar-dulaimi) to
-help me continue maintaining and improving this project! Your support enables me
-to:
-
-- 🔧 Add new features and improvements
-- 🐛 Fix bugs and maintain compatibility
-- 📚 Create better documentation and examples
-- ⚡ Optimize performance and add new integrations
-
-Every contribution, no matter the size, makes a difference! ❤️
-
 </div>
 
----
+## Why
 
-## ✨ Features
+- 🛡️ Declarative rules and composable operators
+- 🎯 Strong typing for context and inputs
+- 🧩 Global middleware or per‑route
+- 📡 OpenAPI‑friendly denials (map to HTTP 403)
+- ⚡ Zero runtime dependencies
 
-- 🛡️ **Declarative Authorization** - Define rules as composable functions
-- 🎯 **Type Safe** - Full TypeScript support with generic context types
-- 🔧 **Path-based Routing** - Works seamlessly with oRPC's procedure path system
-- 🔗 **Rule Composition** - Combine rules with logical operators (`and`, `or`,
-  `not`, `chain`, `race`)
-- 🚀 **High Performance** - Efficient rule evaluation with short-circuiting
-- 🔍 **Debug Mode** - Optional logging for development and troubleshooting
-- 🌳 **Nested Routers** - Support for complex router structures
-- ⚡ **Modern ESM** - ES modules with tree-shaking support
-- 📦 **Zero Dependencies** - Lightweight and focused
-
-## 🚀 Quick Start
-
-### Installation
+## Install
 
 ```bash
-# npm
-npm install orpc-shield
-
-# yarn
-yarn add orpc-shield
-
-# pnpm
 pnpm add orpc-shield
-
-# bun
-bun add orpc-shield
+# or: npm i | yarn add | bun add orpc-shield
 ```
 
-### Basic Usage
+## Quick Start
 
-```typescript
+```ts
 import { os } from '@orpc/server';
-import { rule, shield, and, or, allow, deny } from 'orpc-shield';
+import { rule, allow, shield } from 'orpc-shield';
 
-// Define your context type
-interface Context {
-  user?: {
-    id: string;
-    role: 'admin' | 'editor' | 'user';
-  };
-}
+type Ctx = { user?: { id: string; role: 'admin' | 'user' } };
 
-// Create authorization rules
-const isAuthenticated = rule<Context>()(async ({ ctx }) => {
-  return !!ctx.user;
-});
+const isAuthed = rule<Ctx>()(({ ctx }) => !!ctx.user);
+const isAdmin = rule<Ctx>()(({ ctx }) => ctx.user?.role === 'admin');
 
-const isAdmin = rule<Context>()(async ({ ctx }) => {
-  return ctx.user?.role === 'admin';
-});
+// Map denials to ORPCError('FORBIDDEN') → HTTP 403 in adapters
+const permissions = shield<Ctx>(
+  { users: { list: allow, profile: { get: isAuthed, delete: isAdmin } } },
+  { denyErrorCode: 'FORBIDDEN' }
+);
 
-const isOwner = rule<Context>()(async ({ ctx, input }) => {
-  return ctx.user?.id === (input as any)?.userId;
-});
-
-// Define your permission tree
-const permissions = shield<Context>({
-  users: {
-    list: allow, // Public access
-    create: isAdmin, // Admin only
-    update: and(isAuthenticated, or(isAdmin, isOwner)), // Authenticated + (Admin OR Owner)
-    delete: isAdmin, // Admin only
-  },
-  posts: {
-    list: allow, // Public access
-    create: isAuthenticated, // Any authenticated user
-    update: and(isAuthenticated, isOwner), // Owner only
-    delete: or(isAdmin, isOwner), // Admin OR Owner
-  },
-});
-
-// Apply to your oRPC router
-const router = os.router({
-  users: os.router({
-    list: os.procedure.use(permissions).query(async () => {
-      // Your implementation
+const api = os.$context<Ctx>().use(permissions);
+export const router = api.router({
+  users: api.router({
+    list: api
+      .route({ method: 'GET', path: '/users' })
+      .handler(async () => [{ id: '1' }]),
+    profile: api.router({
+      get: api
+        .route({ method: 'GET', path: '/users/profile' })
+        .handler(async ({ context }) => ({
+          id: context.user?.id ?? 'anonymous',
+        })),
+      delete: api
+        .route({ method: 'DELETE', path: '/users/profile' })
+        .handler(async ({ context }) => ({
+          ok: context.user?.role === 'admin',
+        })),
     }),
-    create: os.procedure.use(permissions).mutation(async () => {
-      // Your implementation
-    }),
-    // ... other procedures
-  }),
-  posts: os.router({
-    // ... post procedures with same pattern
   }),
 });
 ```
+
+<details>
+<summary><b>Rules & Operators</b></summary>
+
+```ts
+import { rule, allow, deny, and, or, not, chain, race } from 'orpc-shield';
+const canEdit = rule<Ctx>()(
+  ({ ctx, input }) => ctx.user?.id === input.authorId
+);
+const canAdmin = rule<Ctx>()(({ ctx }) => ctx.user?.role === 'admin');
+const canModify = and(canEdit, or(canAdmin, allow));
+```
+
+</details>
+
+<details>
+<summary><b>Adapter‑Friendly Denials</b></summary>
+
+- `shield(..., { denyErrorCode: 'FORBIDDEN' })` maps denials to
+  `ORPCError('FORBIDDEN')` (HTTP 403).
+- Prefer global usage: `os.$context().use(permissions)`.
+
+</details>
+
+<details>
+<summary><b>API Surface</b></summary>
+
+- `rule<TContext, TInput>()(fn)` – define a rule
+- Built‑ins: `allow`, `deny`, `denyWithMessage(msg)`
+- Operators: `and`, `or`, `not`, `chain`, `race`
+- `shield(rules, { denyErrorCode?, debug?, allowExternalErrors? })`
+- `shieldDebug(...)` – shield with debug enabled
+
+</details>
+
+<details>
+<summary><b>Testing & Example</b></summary>
+
+- Tests: `pnpm test` (Sandbox/CI: `VITEST_POOL=threads pnpm test`).
+- Example app (Express + oRPC + OpenAPI): see `example/` and
+  `example/SHIELD_TESTS.md`.
+
+</details>
+
+## Legal
+
+- License: MIT — see the `LICENSE` file.
+- Copyright © 2022–2025 Omar Dulaimi.
+- All product names, logos, and brands are property of their respective owners.
 
 ## 📖 Documentation
 
