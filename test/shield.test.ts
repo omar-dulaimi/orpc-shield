@@ -660,16 +660,21 @@ describe('shield middleware integration', () => {
       },
     };
 
-    const mockNext = vi.fn(async () => ({ data: 'should not be called' }));
+    const mockNext = vi.fn(() => ({ output: { data: 'should not be called' }, context: createTestContext() }));
     const middleware = shield(rules);
 
+    const mockOutput = (output: any) => ({ output, context: createTestContext() });
+
     await expect(
-      middleware({
-        context: createTestContext(),
-        path: TestPaths.users.list,
-        input: {},
-        next: mockNext,
-      })
+      middleware(
+        {
+          context: createTestContext(),
+          path: TestPaths.users.list,
+          next: mockNext,
+        },
+        {},
+        mockOutput
+      )
     ).rejects.toThrow(ShieldError);
 
     expect(mockNext).not.toHaveBeenCalled();

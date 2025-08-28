@@ -71,7 +71,7 @@ export interface ShieldOptions<TContext = ORPCContext> {
 export interface MiddlewareOptions<TContext = ORPCContext> {
   context: TContext;
   path: readonly string[];
-  next: (options?: { context?: TContext }) => { output: any; context: TContext };
+  next: (options?: { context?: TContext }) => MiddlewareResult<TContext>;
   procedure?: any;
   signal?: AbortSignal;
   lastEventId?: string | undefined;

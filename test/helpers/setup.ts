@@ -103,7 +103,8 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
               output,
               context: currentContext,
             });
-            return this.middlewares[index + 1](nextOptions, input, outputFn);
+            const result = this.middlewares[index + 1](nextOptions, input, outputFn);
+            return result instanceof Promise ? { output: result, context: currentContext } : result;
           }
           return { output: result, context: currentContext };
         };
