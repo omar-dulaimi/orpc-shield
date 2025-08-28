@@ -7,7 +7,7 @@ rm -r package
 mkdir package
 
 echo "Copying files..."
-cp -r dist package/lib
+cp -r dist package/dist
 cp package.json README.md LICENSE package
 
 echo "Making package.json public..."
