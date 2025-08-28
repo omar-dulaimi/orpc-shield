@@ -1,6 +1,6 @@
 {
   "name": "orpc-shield",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "oRPC permissions as another layer of abstraction!",
   "repository": {
@@ -23,6 +23,7 @@
   "keywords": ["orpc", "orpc-shield", "permissions", "middleware", "authorization"],
   "license": "MIT",
   "scripts": {
+    "pretest": "npm run build",
     "prebuild": "rimraf dist",
     "build": "tsc",
     "prerelease": "npm run build",
