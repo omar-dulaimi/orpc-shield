@@ -66,11 +66,28 @@ export interface ShieldOptions<TContext = ORPCContext> {
 }
 
 /**
- * oRPC Middleware function type
+ * oRPC v1.8.5 compatible middleware types
  */
-export type ORPCMiddleware<TContext = ORPCContext> = (params: {
+export interface MiddlewareOptions<TContext = ORPCContext> {
   context: TContext;
-  next: (params: { context: TContext }) => Promise<any>;
-  path: Path;
-  input?: any;
-}) => Promise<any>;
+  path: readonly string[];
+  next: (options?: { context?: TContext }) => { output: any; context: TContext };
+  procedure?: any;
+  signal?: AbortSignal;
+  lastEventId?: string | undefined;
+  errors?: any;
+}
+
+export interface MiddlewareResult<TContext = ORPCContext> {
+  output: any;
+  context: TContext;
+}
+
+/**
+ * oRPC Middleware function type - compatible with oRPC v1.8.5
+ */
+export type ORPCMiddleware<TContext = ORPCContext> = (
+  options: MiddlewareOptions<TContext>,
+  input: any,
+  output: (output: any) => MiddlewareResult<TContext>
+) => MiddlewareResult<TContext> | Promise<MiddlewareResult<TContext>>;

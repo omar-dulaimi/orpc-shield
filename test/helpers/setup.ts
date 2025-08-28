@@ -1,7 +1,7 @@
 /**
  * Test setup utilities and helpers for oRPC Shield tests
  */
-import type { ORPCContext, ORPCInput, ORPCMiddleware, Path } from '../../src/types.js';
+import type { ORPCContext, ORPCInput, ORPCMiddleware, MiddlewareOptions, MiddlewareResult, Path } from '../../src/types.js';
 
 /**
  * Mock context for testing
@@ -76,7 +76,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
     path: Path;
     input?: ORPCInput;
   }): Promise<{ success: boolean; result?: any; error?: Error }> {
-    const { context, path, input } = params;
+    const { context, path, input = {} } = params;
 
     try {
       let currentContext = context;
@@ -84,27 +84,39 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
 
       // Create the next function chain
       const createNext = (index: number) => {
-        return async ({ context: nextContext }: { context: TContext }) => {
-          currentContext = nextContext;
+        return ({ context: nextContext }: { context?: TContext } = {}) => {
+          currentContext = nextContext || currentContext;
           if (index < this.middlewares.length - 1) {
-            return this.middlewares[index + 1]({
-              context: nextContext,
+            const nextOptions: MiddlewareOptions<TContext> = {
+              context: currentContext,
               path,
-              input,
               next: createNext(index + 1),
+            };
+            const outputFn = (output: any): MiddlewareResult<TContext> => ({
+              output,
+              context: currentContext
             });
+            return this.middlewares[index + 1](nextOptions, input, outputFn);
           }
-          return result;
+          return { output: result, context: currentContext };
         };
       };
 
+      // Create output function for final result
+      const outputFn = (output: any): MiddlewareResult<TContext> => ({
+        output,
+        context: currentContext
+      });
+
       if (this.middlewares.length > 0) {
-        result = await this.middlewares[0]({
+        const options: MiddlewareOptions<TContext> = {
           context: currentContext,
           path,
-          input,
           next: createNext(0),
-        });
+        };
+        const middlewareResult = await this.middlewares[0](options, input, outputFn);
+        result = middlewareResult.output;
+        currentContext = middlewareResult.context;
       }
 
       return { success: true, result };

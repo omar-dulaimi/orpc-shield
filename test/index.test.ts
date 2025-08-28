@@ -246,22 +246,27 @@ describe('runtime type checking', () => {
 
     // Should be a function that accepts specific parameters
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(1); // Should accept one parameter object
+    expect(middleware.length).toBe(3); // Should accept options, input, and output function
 
     // Should work with mock parameters
-    const mockNext = async ({ context }: { context: any }): Promise<unknown> => {
-      await Promise.resolve(); // Satisfy require-await
-      return context;
-    };
-
-    const result = await middleware({
-      context: { test: true },
-      path: ['test'],
-      input: {},
-      next: mockNext,
+    const mockNext = ({ context }: { context?: any } = {}) => ({
+      output: context || { test: true },
+      context: context || { test: true }
     });
 
-    expect(result).toEqual({ test: true });
+    const mockOutput = (output: any) => ({ output, context: { test: true } });
+
+    const result = await middleware(
+      {
+        context: { test: true },
+        path: ['test'],
+        next: mockNext,
+      },
+      {},
+      mockOutput
+    );
+
+    expect(result.context).toEqual({ test: true });
   });
 });
 

@@ -3,6 +3,8 @@ import type {
   IRules,
   ORPCContext,
   ORPCMiddleware,
+  MiddlewareOptions,
+  MiddlewareResult,
   Path,
   RuleResult,
   ShieldOptions,
@@ -105,7 +107,13 @@ export function shield<TContext = ORPCContext>(
   // Validate rule tree structure
   validateRuleTree(rules);
 
-  return async function shieldMiddleware({ context, next, path, input }): Promise<any> {
+  return async function shieldMiddleware(
+    options: MiddlewareOptions<TContext>,
+    input: any,
+    output: (output: any) => MiddlewareResult<TContext>
+  ): Promise<MiddlewareResult<TContext>> {
+    const { context, path, next } = options;
+    
     try {
       if (debug) {
         console.log(`[oRPC Shield] Processing path: ${path.join('.')}`);
@@ -135,8 +143,8 @@ export function shield<TContext = ORPCContext>(
       // Process the result
       processRuleResult(result, path);
 
-      // If we get here, access is allowed
-      return await next({ context });
+      // If we get here, access is allowed - call next middleware
+      return next({ context });
     } catch (error) {
       if (debug) {
         console.error(`[oRPC Shield] Error processing ${path.join('.')}:`, error);

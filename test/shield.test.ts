@@ -28,7 +28,7 @@ describe('shield middleware creation', () => {
     const middleware = shield(rules);
 
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(1); // Should accept one parameter object
+    expect(middleware.length).toBe(3); // Should accept options, input, and output function
   });
 
   it('should validate rule tree structure', () => {
@@ -628,24 +628,29 @@ describe('shield middleware integration', () => {
     };
 
     let nextCalled = false;
-    const mockNext = vi.fn(async () => {
+    const mockNext = vi.fn(({ context: nextContext } = {}) => {
       nextCalled = true;
-      return { data: 'success' };
+      return { output: { data: 'success' }, context: nextContext || context };
     });
 
     const middleware = shield(rules);
     const context = createTestContext();
 
-    const result = await middleware({
-      context,
-      path: TestPaths.users.list,
-      input: {},
-      next: mockNext,
-    });
+    const mockOutput = (output: any) => ({ output, context });
+
+    const result = await middleware(
+      {
+        context,
+        path: TestPaths.users.list,
+        next: mockNext,
+      },
+      {},
+      mockOutput
+    );
 
     expect(nextCalled).toBe(true);
     expect(mockNext).toHaveBeenCalledWith({ context });
-    expect(result).toEqual({ data: 'success' });
+    expect(result.output).toEqual({ data: 'success' });
   });
 
   it('should not call next middleware when access is denied', async () => {
@@ -680,19 +685,24 @@ describe('shield middleware integration', () => {
     const originalContext = createAuthenticatedContext();
     let receivedContext: any;
 
-    const mockNext = vi.fn(async ({ context }) => {
+    const mockNext = vi.fn(({ context }) => {
       receivedContext = context;
-      return { data: 'success' };
+      return { output: { data: 'success' }, context };
     });
 
     const middleware = shield(rules);
 
-    await middleware({
-      context: originalContext,
-      path: TestPaths.users.list,
-      input: {},
-      next: mockNext,
-    });
+    const mockOutput = (output: any) => ({ output, context: originalContext });
+
+    await middleware(
+      {
+        context: originalContext,
+        path: TestPaths.users.list,
+        next: mockNext,
+      },
+      {},
+      mockOutput
+    );
 
     expect(receivedContext).toBe(originalContext);
   });
