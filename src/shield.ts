@@ -9,6 +9,7 @@ import type {
   ShieldOptions,
 } from './types.js';
 import { allow } from './rule.js';
+import { ORPCError } from '@orpc/server';
 
 /**
  * Shield error class for authorization failures
@@ -98,7 +99,12 @@ export function shield<TContext = any>(
   rules: IRules<TContext>,
   options: ShieldOptions<TContext> = {}
 ): ORPCMiddleware<TContext> {
-  const { fallbackRule = allow, allowExternalErrors = true, debug = false } = options;
+  const {
+    fallbackRule = allow,
+    allowExternalErrors = true,
+    debug = false,
+    denyErrorCode,
+  } = options;
 
   // Validate rule tree structure
   validateRuleTree(rules);
@@ -145,8 +151,11 @@ export function shield<TContext = any>(
         console.error(`[oRPC Shield] Error processing ${path.join('.')}:`, error);
       }
 
-      // Re-throw ShieldError instances as-is
+      // Re-throw ShieldError instances (or map to ORPCError if configured)
       if (error instanceof ShieldError) {
+        if (denyErrorCode) {
+          throw new ORPCError(denyErrorCode as any, { message: error.message });
+        }
         throw error;
       }
 
@@ -155,8 +164,12 @@ export function shield<TContext = any>(
         throw error;
       }
 
-      // Convert other errors to ShieldError
-      throw new ShieldError(error instanceof Error ? error.message : String(error), path);
+      // Convert other errors
+      const message = error instanceof Error ? error.message : String(error);
+      if (denyErrorCode) {
+        throw new ORPCError(denyErrorCode as any, { message });
+      }
+      throw new ShieldError(message, path);
     }
   };
 }
@@ -169,4 +182,14 @@ export function shieldDebug<TContext = any>(
   options: Omit<ShieldOptions<TContext>, 'debug'> = {}
 ): ORPCMiddleware<TContext> {
   return shield(rules, { ...options, debug: true });
+}
+
+/**
+ * Convenience helper: map denials to ORPCError('FORBIDDEN') for HTTP-friendly responses.
+ */
+export function shieldForORPC<TContext = any>(
+  rules: IRules<TContext>,
+  options: Omit<ShieldOptions<TContext>, 'denyErrorCode'> = {}
+): ORPCMiddleware<TContext> {
+  return shield(rules, { denyErrorCode: 'FORBIDDEN', ...options });
 }

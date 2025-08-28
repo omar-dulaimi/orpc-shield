@@ -63,6 +63,12 @@ export interface ShieldOptions<TContext = ORPCContext> {
    * @default false
    */
   debug?: boolean;
+
+  /**
+   * Optional mapping to an ORPC error code when access is denied.
+   * Example: 'FORBIDDEN' to surface HTTP 403 via adapters.
+   */
+  denyErrorCode?: string;
 }
 
 /**

@@ -5,7 +5,7 @@ export { rule, allow, deny, denyWithMessage, allowAll } from './rule.js';
 export { and, or, not, chain, race } from './operators.js';
 
 // Shield middleware
-export { shield, shieldDebug, ShieldError } from './shield.js';
+export { shield, shieldDebug, shieldForORPC, ShieldError } from './shield.js';
 
 // Types
 export type {
