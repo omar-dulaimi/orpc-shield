@@ -1,6 +1,6 @@
 {
   "name": "orpc-shield",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "oRPC permissions as another layer of abstraction!",
   "repository": {
@@ -15,6 +15,7 @@
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
+  "files": ["dist/**/*", "README.md", "LICENSE"],
   "author": {
     "name": "Omar Dulaimi",
     "url": "https://github.com/omar-dulaimi"
@@ -30,7 +31,7 @@
     "prettier": "prettier --ignore-path .gitignore --write --list-different \"**/*.{ts,tsx,yml}\"",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.dev.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

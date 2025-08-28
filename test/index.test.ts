@@ -141,7 +141,7 @@ describe('module exports', () => {
 describe('API compatibility', () => {
   it('should work with CommonJS require', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const orpcShield = require('../dist/src/index.js');
+    const orpcShield = require('../dist/index.js');
 
     expect(orpcShield.rule).toBeDefined();
     expect(orpcShield.allow).toBeDefined();

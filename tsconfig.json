@@ -24,6 +24,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["src", "test", "vitest.config.ts"],
+  "include": ["src"],
   "exclude": ["dist", "node_modules", "example"]
 }
