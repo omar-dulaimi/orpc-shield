@@ -1,6 +1,6 @@
 {
   "name": "orpc-shield",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "type": "module",
   "description": "oRPC permissions as another layer of abstraction!",
   "repository": {
