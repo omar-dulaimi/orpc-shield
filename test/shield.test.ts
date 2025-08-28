@@ -7,11 +7,11 @@ import { allow, deny, rule } from '../src/rule.js';
 import { and, not, or } from '../src/operators.js';
 import {
   MockMiddlewareExecutor,
+  type TestContext,
   TestPaths,
   createAdminContext,
   createAuthenticatedContext,
   createTestContext,
-  type TestContext,
 } from './helpers/setup.js';
 import { TestRules } from './helpers/rules.js';
 import type { IRules } from '../src/types.js';
@@ -28,7 +28,7 @@ describe('shield middleware creation', () => {
     const middleware = shield(rules);
 
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(3); // Should accept options, input, and output function
+    expect(middleware.length).toBe(2); // Should accept options and input
   });
 
   it('should validate rule tree structure', () => {
@@ -636,7 +636,7 @@ describe('shield middleware integration', () => {
     const middleware = shield(rules);
     const context = createTestContext();
 
-    const mockOutput = (output: any) => ({ output, context });
+    const _mockOutput = (output: any) => ({ output, context });
 
     const result = await middleware(
       {
@@ -644,8 +644,7 @@ describe('shield middleware integration', () => {
         path: TestPaths.users.list,
         next: mockNext,
       },
-      {},
-      mockOutput
+      {}
     );
 
     expect(nextCalled).toBe(true);
@@ -660,10 +659,13 @@ describe('shield middleware integration', () => {
       },
     };
 
-    const mockNext = vi.fn(() => ({ output: { data: 'should not be called' }, context: createTestContext() }));
+    const mockNext = vi.fn(() => ({
+      output: { data: 'should not be called' },
+      context: createTestContext(),
+    }));
     const middleware = shield(rules);
 
-    const mockOutput = (output: any) => ({ output, context: createTestContext() });
+    const _mockOutput = (output: any) => ({ output, context: createTestContext() });
 
     await expect(
       middleware(
@@ -672,8 +674,7 @@ describe('shield middleware integration', () => {
           path: TestPaths.users.list,
           next: mockNext,
         },
-        {},
-        mockOutput
+        {}
       )
     ).rejects.toThrow(ShieldError);
 
@@ -697,7 +698,7 @@ describe('shield middleware integration', () => {
 
     const middleware = shield(rules);
 
-    const mockOutput = (output: any) => ({ output, context: originalContext });
+    const _mockOutput = (output: any) => ({ output, context: originalContext });
 
     await middleware(
       {
@@ -705,8 +706,7 @@ describe('shield middleware integration', () => {
         path: TestPaths.users.list,
         next: mockNext,
       },
-      {},
-      mockOutput
+      {}
     );
 
     expect(receivedContext).toBe(originalContext);

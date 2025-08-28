@@ -3,7 +3,6 @@ import type {
   IRules,
   MiddlewareOptions,
   MiddlewareResult,
-  ORPCContext,
   ORPCMiddleware,
   Path,
   RuleResult,
@@ -27,7 +26,7 @@ export class ShieldError extends Error {
 /**
  * Finds a rule in the rule tree based on the procedure path
  */
-function findRuleInTree<TContext = ORPCContext>(
+function findRuleInTree<TContext = any>(
   rules: IRules<TContext>,
   path: Path
 ): IRule<TContext> | null {
@@ -52,10 +51,7 @@ function findRuleInTree<TContext = ORPCContext>(
 /**
  * Validates that the rule tree is properly structured
  */
-function validateRuleTree<TContext = ORPCContext>(
-  rules: IRules<TContext>,
-  path: string[] = []
-): void {
+function validateRuleTree<TContext = any>(rules: IRules<TContext>, path: string[] = []): void {
   for (const [key, value] of Object.entries(rules)) {
     const currentPath = [...path, key];
 
@@ -98,7 +94,7 @@ function processRuleResult(result: RuleResult, path: Path): void {
 /**
  * Creates oRPC shield middleware from a rule tree
  */
-export function shield<TContext = ORPCContext>(
+export function shield<TContext = any>(
   rules: IRules<TContext>,
   options: ShieldOptions<TContext> = {}
 ): ORPCMiddleware<TContext> {
@@ -109,8 +105,7 @@ export function shield<TContext = ORPCContext>(
 
   return async function shieldMiddleware(
     options: MiddlewareOptions<TContext>,
-    input: any,
-    _output: (output: any) => MiddlewareResult<TContext>
+    input: any
   ): Promise<MiddlewareResult<TContext>> {
     const { context, path, next } = options;
 
@@ -169,7 +164,7 @@ export function shield<TContext = ORPCContext>(
 /**
  * Creates a shield with debug logging enabled
  */
-export function shieldDebug<TContext = ORPCContext>(
+export function shieldDebug<TContext = any>(
   rules: IRules<TContext>,
   options: Omit<ShieldOptions<TContext>, 'debug'> = {}
 ): ORPCMiddleware<TContext> {

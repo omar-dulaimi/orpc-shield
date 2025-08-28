@@ -1,9 +1,9 @@
-import type { IRule, ORPCContext, ORPCInput, Path, RuleResolver, RuleResult } from './types.js';
+import type { IRule, ORPCInput, Path, RuleResolver, RuleResult } from './types.js';
 
 /**
  * Rule class implementation for oRPC
  */
-export class Rule<TContext = ORPCContext, TInput = ORPCInput> implements IRule<TContext, TInput> {
+export class Rule<TContext = any, TInput = ORPCInput> implements IRule<TContext, TInput> {
   constructor(private resolver: RuleResolver<TContext, TInput>) {}
 
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
@@ -21,7 +21,7 @@ export class Rule<TContext = ORPCContext, TInput = ORPCInput> implements IRule<T
 /**
  * Creates a new rule from a resolver function
  */
-export function rule<TContext = ORPCContext, TInput = ORPCInput>() {
+export function rule<TContext = any, TInput = ORPCInput>() {
   return (resolver: RuleResolver<TContext, TInput>) => {
     return new Rule(resolver);
   };

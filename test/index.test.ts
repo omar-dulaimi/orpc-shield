@@ -246,7 +246,7 @@ describe('runtime type checking', () => {
 
     // Should be a function that accepts specific parameters
     expect(typeof middleware).toBe('function');
-    expect(middleware.length).toBe(3); // Should accept options, input, and output function
+    expect(middleware.length).toBe(2); // Should accept options and input
 
     // Should work with mock parameters
     const mockNext = ({ context }: { context?: any } = {}) => ({
@@ -254,7 +254,7 @@ describe('runtime type checking', () => {
       context: context ?? { test: true },
     });
 
-    const mockOutput = (output: any) => ({ output, context: { test: true } });
+    const _mockOutput = (output: any) => ({ output, context: { test: true } });
 
     const result = await middleware(
       {
@@ -262,8 +262,7 @@ describe('runtime type checking', () => {
         path: ['test'],
         next: mockNext,
       },
-      {},
-      mockOutput
+      {}
     );
 
     expect(result.context).toEqual({ test: true });

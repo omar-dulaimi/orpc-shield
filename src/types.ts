@@ -85,9 +85,14 @@ export interface MiddlewareResult<TContext = ORPCContext> {
 
 /**
  * oRPC Middleware function type - compatible with oRPC v1.8.5
+ * Updated to be more flexible with context types to handle merged contexts
  */
-export type ORPCMiddleware<TContext = ORPCContext> = (
+export type ORPCMiddleware<TContext = any> = (
   options: MiddlewareOptions<TContext>,
-  input: any,
-  output: (output: any) => MiddlewareResult<TContext>
+  input: any
 ) => MiddlewareResult<TContext> | Promise<MiddlewareResult<TContext>>;
+
+/**
+ * Context type that can be used with oRPC's Context type
+ */
+export type Context = any;

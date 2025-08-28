@@ -99,11 +99,12 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
               path,
               next: createNext(index + 1),
             };
-            const outputFn = (output: any): MiddlewareResult<TContext> => ({
+
+            const _outputFn = (output: any): MiddlewareResult<TContext> => ({
               output,
               context: currentContext,
             });
-            const result = this.middlewares[index + 1](nextOptions, input, outputFn);
+            const result = this.middlewares[index + 1](nextOptions, input);
             return result instanceof Promise ? { output: result, context: currentContext } : result;
           }
           return { output: result, context: currentContext };
@@ -111,7 +112,8 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
       };
 
       // Create output function for final result
-      const outputFn = (output: any): MiddlewareResult<TContext> => ({
+
+      const _outputFn = (output: any): MiddlewareResult<TContext> => ({
         output,
         context: currentContext,
       });
@@ -122,7 +124,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
           path,
           next: createNext(0),
         };
-        const middlewareResult = await this.middlewares[0](options, input, outputFn);
+        const middlewareResult = await this.middlewares[0](options, input);
         result = middlewareResult.output;
         currentContext = middlewareResult.context;
       }
@@ -138,6 +140,7 @@ export class MockMiddlewareExecutor<TContext = ORPCContext> {
  * Creates a simple test procedure that returns success
  */
 export function createTestProcedure(result: any = { success: true }) {
+  // eslint-disable-next-line @typescript-eslint/require-await
   return async () => result;
 }
 
