@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/config-conventional": "^20.0.0",
     "@orpc/server": "^1.0.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
