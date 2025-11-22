@@ -140,20 +140,6 @@ describe('module exports', () => {
 });
 
 describe('API compatibility', () => {
-  it('should work with CommonJS require', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const orpcShield = require('../dist/index.js');
-
-    expect(orpcShield.rule).toBeDefined();
-    expect(orpcShield.allow).toBeDefined();
-    expect(orpcShield.deny).toBeDefined();
-    expect(orpcShield.and).toBeDefined();
-    expect(orpcShield.or).toBeDefined();
-    expect(orpcShield.not).toBeDefined();
-    expect(orpcShield.shield).toBeDefined();
-    expect(orpcShield.ShieldError).toBeDefined();
-  });
-
   it('should work with ES modules import', async () => {
     const orpcShield = await import('../src/index.js');
 

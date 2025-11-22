@@ -51,15 +51,9 @@ export default defineConfig({
     // Watch configuration
     watch: false,
 
-    // Pool options for parallel testing
+    // Pool configuration (Vitest 4 doesn't yet expose poolOptions typings)
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        // Use available CPU cores for testing
-        minForks: 1,
-        maxForks: 4,
-      },
-    },
+    maxWorkers: 4,
 
     // TypeScript configuration
     typecheck: {
