@@ -27,37 +27,50 @@ export class ShieldError extends Error {
 /**
  * Finds a rule in the rule tree based on the procedure path
  */
-function findRuleInTree<TContext = any>(
+function isRule<TContext extends Context>(value: unknown): value is IRule<TContext> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'resolve' in (value as Record<string, unknown>) &&
+    typeof (value as { resolve?: unknown }).resolve === 'function'
+  );
+}
+
+function findRuleInTree<TContext extends Context>(
   rules: IRules<TContext>,
   path: Path
 ): IRule<TContext> | null {
-  let current: any = rules;
+  let current: IRules<TContext> | IRule<TContext> | undefined = rules;
 
   for (const segment of path) {
     if (!current || typeof current !== 'object') {
       return null;
     }
 
-    current = current[segment];
+    const next = (current as IRules<TContext>)[segment];
+
+    if (!next) {
+      return null;
+    }
+
+    current = next as IRules<TContext> | IRule<TContext>;
   }
 
-  // Check if the found item is a rule (has resolve method)
-  if (current && typeof current === 'object' && 'resolve' in current) {
-    return current as IRule<TContext>;
-  }
-
-  return null;
+  return isRule(current) ? current : null;
 }
 
 /**
  * Validates that the rule tree is properly structured
  */
-function validateRuleTree<TContext = any>(rules: IRules<TContext>, path: string[] = []): void {
+function validateRuleTree<TContext extends Context>(
+  rules: IRules<TContext>,
+  path: string[] = []
+): void {
   for (const [key, value] of Object.entries(rules)) {
     const currentPath = [...path, key];
 
     if (value && typeof value === 'object') {
-      if ('resolve' in value && typeof value.resolve === 'function') {
+      if (isRule<TContext>(value)) {
         // It's a rule - valid
         continue;
       } else {
@@ -100,7 +113,7 @@ export function shield<TContext extends Context = Context>(
   options: ShieldOptions<TContext> = {}
 ): ORPCMiddleware<TContext> {
   const {
-    fallbackRule = allow,
+    fallbackRule = allow as IRule<TContext>,
     allowExternalErrors = true,
     debug = false,
     denyErrorCode,
@@ -155,7 +168,7 @@ export function shield<TContext extends Context = Context>(
       // Re-throw ShieldError instances (or map to ORPCError if configured)
       if (error instanceof ShieldError) {
         if (denyErrorCode) {
-          throw new ORPCError(denyErrorCode as any, { message: error.message });
+          throw new ORPCError(denyErrorCode, { message: error.message });
         }
         throw error;
       }
@@ -168,7 +181,7 @@ export function shield<TContext extends Context = Context>(
       // Convert other errors
       const message = error instanceof Error ? error.message : String(error);
       if (denyErrorCode) {
-        throw new ORPCError(denyErrorCode as any, { message });
+        throw new ORPCError(denyErrorCode, { message });
       }
       throw new ShieldError(message, path);
     }

@@ -1,9 +1,11 @@
-import type { IRule, ORPCInput, Path, RuleResult } from './types.js';
+import type { Context, IRule, ORPCInput, Path, RuleResult } from './types.js';
 
 /**
  * Base class for logic rules that combine other rules
  */
-abstract class LogicRule<TContext = any, TInput = ORPCInput> implements IRule<TContext, TInput> {
+abstract class LogicRule<TContext = Context, TInput = ORPCInput>
+  implements IRule<TContext, TInput>
+{
   constructor(protected rules: IRule<TContext, TInput>[]) {}
 
   abstract resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult>;
@@ -12,7 +14,7 @@ abstract class LogicRule<TContext = any, TInput = ORPCInput> implements IRule<TC
 /**
  * AND logic rule - all rules must pass
  */
-export class RuleAnd<TContext = any, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
+export class RuleAnd<TContext = Context, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
     for (const rule of this.rules) {
       const result = await rule.resolve(params);
@@ -27,7 +29,7 @@ export class RuleAnd<TContext = any, TInput = ORPCInput> extends LogicRule<TCont
 /**
  * OR logic rule - at least one rule must pass
  */
-export class RuleOr<TContext = any, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
+export class RuleOr<TContext = Context, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
     const errors: RuleResult[] = [];
 
@@ -47,7 +49,7 @@ export class RuleOr<TContext = any, TInput = ORPCInput> extends LogicRule<TConte
 /**
  * NOT logic rule - inverts the result of a single rule
  */
-export class RuleNot<TContext = any, TInput = ORPCInput> implements IRule<TContext, TInput> {
+export class RuleNot<TContext = Context, TInput = ORPCInput> implements IRule<TContext, TInput> {
   constructor(private rule: IRule<TContext, TInput>) {}
 
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
@@ -62,7 +64,7 @@ export class RuleNot<TContext = any, TInput = ORPCInput> implements IRule<TConte
 /**
  * CHAIN logic rule - executes rules in sequence, short-circuiting on failure
  */
-export class RuleChain<TContext = any, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
+export class RuleChain<TContext = Context, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
     for (const rule of this.rules) {
       const result = await rule.resolve(params);
@@ -77,7 +79,7 @@ export class RuleChain<TContext = any, TInput = ORPCInput> extends LogicRule<TCo
 /**
  * RACE logic rule - returns the result of the first rule to complete
  */
-export class RuleRace<TContext = any, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
+export class RuleRace<TContext = Context, TInput = ORPCInput> extends LogicRule<TContext, TInput> {
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
     const promises = this.rules.map((rule) => rule.resolve(params));
     return await Promise.race(promises);
@@ -89,7 +91,7 @@ export class RuleRace<TContext = any, TInput = ORPCInput> extends LogicRule<TCon
 /**
  * Creates an AND rule - all rules must pass
  */
-export function and<TContext = any, TInput = ORPCInput>(
+export function and<TContext = Context, TInput = ORPCInput>(
   ...rules: IRule<TContext, TInput>[]
 ): IRule<TContext, TInput> {
   return new RuleAnd(rules);
@@ -98,7 +100,7 @@ export function and<TContext = any, TInput = ORPCInput>(
 /**
  * Creates an OR rule - at least one rule must pass
  */
-export function or<TContext = any, TInput = ORPCInput>(
+export function or<TContext = Context, TInput = ORPCInput>(
   ...rules: IRule<TContext, TInput>[]
 ): IRule<TContext, TInput> {
   return new RuleOr(rules);
@@ -107,7 +109,7 @@ export function or<TContext = any, TInput = ORPCInput>(
 /**
  * Creates a NOT rule - inverts the result of a rule
  */
-export function not<TContext = any, TInput = ORPCInput>(
+export function not<TContext = Context, TInput = ORPCInput>(
   rule: IRule<TContext, TInput>
 ): IRule<TContext, TInput> {
   return new RuleNot(rule);
@@ -116,7 +118,7 @@ export function not<TContext = any, TInput = ORPCInput>(
 /**
  * Creates a CHAIN rule - executes rules in sequence
  */
-export function chain<TContext = any, TInput = ORPCInput>(
+export function chain<TContext = Context, TInput = ORPCInput>(
   ...rules: IRule<TContext, TInput>[]
 ): IRule<TContext, TInput> {
   return new RuleChain(rules);
@@ -125,7 +127,7 @@ export function chain<TContext = any, TInput = ORPCInput>(
 /**
  * Creates a RACE rule - returns first completed rule result
  */
-export function race<TContext = any, TInput = ORPCInput>(
+export function race<TContext = Context, TInput = ORPCInput>(
   ...rules: IRule<TContext, TInput>[]
 ): IRule<TContext, TInput> {
   return new RuleRace(rules);

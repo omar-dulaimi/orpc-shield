@@ -4,16 +4,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { shield } from '../src/shield.js';
 import { allow, deny, rule } from '../src/rule.js';
-import { and, chain, not, or, race } from '../src/operators.js';
+import { and, or, race } from '../src/operators.js';
 import {
   MockMiddlewareExecutor,
+  type TestContext,
   TestInputs,
   TestPaths,
   createAdminContext,
   createAuthenticatedContext,
   createTestContext,
 } from './helpers/setup.js';
-import type { TestContext } from './helpers/setup.js';
 import type { IRules } from '../src/types.js';
 
 describe('integration: realistic application scenarios', () => {
@@ -232,7 +232,7 @@ describe('integration: realistic application scenarios', () => {
     const isTenantAdmin = rule<TestContext, { tenantId?: string }>()((params) => {
       return (
         params.ctx.user?.role === 'admin' &&
-        params.ctx.user.id.includes(params.input?.tenantId || '')
+        params.ctx.user.id.includes(params.input?.tenantId ?? '')
       );
     });
 
@@ -681,15 +681,14 @@ describe('integration: realistic application scenarios', () => {
 
 describe('integration: error handling and edge cases', () => {
   let executor: MockMiddlewareExecutor<TestContext>;
-  let consoleSpy: any;
 
   beforeEach(() => {
     executor = new MockMiddlewareExecutor<TestContext>();
-    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
-    consoleSpy?.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it('should handle rules that throw async errors', async () => {

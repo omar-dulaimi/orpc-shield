@@ -3,7 +3,6 @@
  */
 import { allow, deny, rule } from '../../src/rule.js';
 import type { TestContext } from './setup.js';
-import type { ORPCInput, Path } from '../../src/types.js';
 
 /**
  * Rule that checks if user is authenticated
@@ -179,7 +178,7 @@ export const rateLimited = rule<TestContext>()((params) => {
 /**
  * Rule that depends on external service (mock)
  */
-export const externalServiceCheck = rule<TestContext>()(async (params) => {
+export const externalServiceCheck = rule<TestContext>()((params) => {
   const { ctx } = params;
 
   // Mock external service call

@@ -50,7 +50,15 @@ app.use(async (req, res) => {
   if (!result.matched) res.status(404).end('No procedure matched');
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`server listening at http://localhost:${PORT}`);
   console.log(`OpenAPI endpoints at http://localhost:${PORT}/users ...`);
+});
+
+server.on('error', (error) => {
+  console.error('Failed to start example server:', error);
+});
+
+server.on('close', () => {
+  console.log('Example server closed');
 });

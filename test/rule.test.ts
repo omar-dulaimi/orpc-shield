@@ -3,11 +3,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import { allow, allowAll, deny, denyWithMessage, rule } from '../src/rule.js';
-import { TestPaths, createTestContext } from './helpers/setup.js';
-import type { TestContext } from './helpers/setup.js';
+// eslint-disable-next-line sort-imports
+import { createTestContext, type TestContext, TestPaths } from './helpers/setup.js';
+import type { Path } from '../src/types.js';
 
 describe('rule constructor', () => {
-  it('should create a rule from a resolver function', async () => {
+  it('should create a rule from a resolver function', () => {
     const testRule = rule<TestContext>()((params) => {
       return params.ctx.isAuthenticated;
     });
@@ -46,15 +47,17 @@ describe('rule constructor', () => {
   });
 
   it('should pass correct parameters to resolver', async () => {
-    let receivedParams: any;
-    const testRule = rule<TestContext>()((params) => {
+    let receivedParams:
+      | { ctx: TestContext; path: Path; input: Record<string, unknown> }
+      | undefined;
+    const testRule = rule<TestContext, Record<string, unknown>>()((params) => {
       receivedParams = params;
       return true;
     });
 
     const context = createTestContext({ isAuthenticated: true });
     const path = TestPaths.users.create;
-    const input = { name: 'test' };
+    const input: Record<string, unknown> = { name: 'test' };
 
     await testRule.resolve({ ctx: context, path, input });
 
@@ -137,6 +140,7 @@ describe('rule constructor', () => {
 
   it('should convert thrown non-Error values to Error objects', async () => {
     const testRule = rule<TestContext>()(() => {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw 'String error';
     });
     const context = createTestContext();

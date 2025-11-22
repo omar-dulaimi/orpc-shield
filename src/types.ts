@@ -17,7 +17,9 @@ export type ORPCContext = import('@orpc/server').Context;
 /**
  * Input type for oRPC procedures
  */
-export type ORPCInput<T = any> = T;
+export type ORPCInput<T = unknown> = T;
+
+type DefaultErrorMap = import('@orpc/server').ORPCErrorConstructorMap<Record<never, never>>;
 
 /**
  * Rule resolver function signature for oRPC
@@ -68,17 +70,14 @@ export interface ShieldOptions<TContext = ORPCContext> {
    * Optional mapping to an ORPC error code when access is denied.
    * Example: 'FORBIDDEN' to surface HTTP 403 via adapters.
    */
-  denyErrorCode?: string;
+  denyErrorCode?: ConstructorParameters<typeof import('@orpc/server').ORPCError>[0];
 }
 
 // Align middleware types with @orpc/server
 export type MiddlewareOptions<
   TInContext extends import('@orpc/server').Context = import('@orpc/server').Context,
   TOutput = unknown,
-  TErrorMap extends
-    import('@orpc/server').ORPCErrorConstructorMap<any> = import('@orpc/server').ORPCErrorConstructorMap<
-    Record<never, never>
-  >,
+  TErrorMap extends DefaultErrorMap = DefaultErrorMap,
   TMeta extends import('@orpc/server').Meta = import('@orpc/server').Meta,
 > = import('@orpc/server').MiddlewareOptions<TInContext, TOutput, TErrorMap, TMeta>;
 
@@ -92,10 +91,7 @@ export type ORPCMiddleware<
   TInContext extends import('@orpc/server').Context = TContext,
   TInput = unknown,
   TOutput = unknown,
-  TErrorMap extends
-    import('@orpc/server').ORPCErrorConstructorMap<any> = import('@orpc/server').ORPCErrorConstructorMap<
-    Record<never, never>
-  >,
+  TErrorMap extends DefaultErrorMap = DefaultErrorMap,
   TMeta extends import('@orpc/server').Meta = import('@orpc/server').Meta,
 > = import('@orpc/server').Middleware<TContext, TInContext, TInput, TOutput, TErrorMap, TMeta>;
 

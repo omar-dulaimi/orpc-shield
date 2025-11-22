@@ -4,9 +4,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { and, chain, not, or, race } from '../src/operators.js';
 import { allow, deny, rule } from '../src/rule.js';
-import { TestPaths, createTestContext, delay } from './helpers/setup.js';
+// eslint-disable-next-line sort-imports
+import { createTestContext, delay, TestPaths, type TestContext } from './helpers/setup.js';
 import { TestRules } from './helpers/rules.js';
-import type { TestContext } from './helpers/setup.js';
 
 describe('and operator', () => {
   it('should return true when all rules return true', async () => {

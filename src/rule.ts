@@ -1,9 +1,9 @@
-import type { IRule, ORPCInput, Path, RuleResolver, RuleResult } from './types.js';
+import type { Context, IRule, ORPCInput, Path, RuleResolver, RuleResult } from './types.js';
 
 /**
  * Rule class implementation for oRPC
  */
-export class Rule<TContext = any, TInput = ORPCInput> implements IRule<TContext, TInput> {
+export class Rule<TContext = Context, TInput = ORPCInput> implements IRule<TContext, TInput> {
   constructor(private resolver: RuleResolver<TContext, TInput>) {}
 
   async resolve(params: { ctx: TContext; path: Path; input: TInput }): Promise<RuleResult> {
@@ -21,7 +21,7 @@ export class Rule<TContext = any, TInput = ORPCInput> implements IRule<TContext,
 /**
  * Creates a new rule from a resolver function
  */
-export function rule<TContext = any, TInput = ORPCInput>() {
+export function rule<TContext = Context, TInput = ORPCInput>() {
   return (resolver: RuleResolver<TContext, TInput>) => {
     return new Rule(resolver);
   };
@@ -30,18 +30,18 @@ export function rule<TContext = any, TInput = ORPCInput>() {
 /**
  * Built-in rule that always allows access
  */
-export const allow = new Rule<any, any>(() => true);
+export const allow = new Rule<Context, ORPCInput>(() => true);
 
 /**
  * Built-in rule that always denies access
  */
-export const deny = new Rule<any, any>(() => new Error('Access denied'));
+export const deny = new Rule<Context, ORPCInput>(() => new Error('Access denied'));
 
 /**
  * Creates a rule that always denies with a custom message
  */
 export function denyWithMessage(message: string) {
-  return new Rule<any, any>(() => new Error(message));
+  return new Rule<Context, ORPCInput>(() => new Error(message));
 }
 
 /**
