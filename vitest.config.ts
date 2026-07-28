@@ -84,10 +84,4 @@ export default defineConfig({
   define: {
     __TEST__: true,
   },
-
-  // ESBuild configuration for faster transpilation
-  esbuild: {
-    target: 'node18',
-    format: 'esm',
-  },
 });
