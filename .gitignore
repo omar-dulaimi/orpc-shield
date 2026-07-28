@@ -2,6 +2,13 @@ node_modules
 dist
 package
 
+# pnpm is the only package manager this repo uses: CI installs with
+# `pnpm install --frozen-lockfile` and @semantic-release/git commits only
+# pnpm-lock.yaml. A package-lock.json produced by a stray `npm install` is never
+# read by anything, and if committed it silently falls behind on every release,
+# because the release commit bumps package.json without it. Keep it untracked.
+package-lock.json
+
 *.log*
 .DS_Store
 

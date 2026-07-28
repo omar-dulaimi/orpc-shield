@@ -14,6 +14,11 @@ that matches oRPC's single procedure model.
 
 ## Build and Development Commands
 
+- `pnpm install` - Install dependencies. pnpm is the only package manager this
+  repo uses. `pnpm-lock.yaml` at the root is the single lockfile and it covers
+  `example/` too, which is a workspace member listed in `pnpm-workspace.yaml`.
+  Do not commit a `package-lock.json`; it is gitignored. The `npm run ...` lines
+  below only invoke scripts, which any package manager can do.
 - `npm run build` - Compile TypeScript to JavaScript (outputs to `dist/`)
 - `npm run prebuild` - Clean the dist folder before building
 - `npm run semantic-release` - Publish from the repository root; CI only. The
