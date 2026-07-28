@@ -1,5 +1,7 @@
 {
-  "branches": ["master"],
+  "branches": [
+    "master"
+  ],
   "repositoryUrl": "https://github.com/omar-dulaimi/orpc-shield.git",
   "plugins": [
     "@semantic-release/commit-analyzer",
@@ -14,10 +16,21 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json", "pnpm-lock.yaml"],
+        "assets": [
+          "CHANGELOG.md",
+          "package.json",
+          "pnpm-lock.yaml"
+        ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],
-    "@semantic-release/github"
-  ]
+    [
+      "@semantic-release/github",
+      {
+        "failComment": false,
+        "failTitle": false
+      }
+    ]
+  ],
+  "//": "repositoryUrl is set explicitly: package.json uses npm's `git+https://` form, which @semantic-release/github parses into an empty $owner. Its `fail` step then dies on a GraphQL error that masks whatever actually went wrong."
 }
