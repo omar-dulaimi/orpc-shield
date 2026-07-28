@@ -14,6 +14,10 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      # Required. @semantic-release/npm requests a GitHub OIDC token and exchanges it with npm for a
+      # short-lived publish credential; without this the exchange fails and there is no token to fall
+      # back on, because the package disallows them.
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -29,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0
+          node-version: 24.x
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -50,8 +54,9 @@ jobs:
       - name: Build package artifacts
         run: ./package.sh
 
+      # No npm token: the package is configured for Trusted Publishing with tokens disallowed, so
+      # auth is the OIDC exchange alone. Setting NPM_TOKEN here would write a conflicting .npmrc.
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm semantic-release
