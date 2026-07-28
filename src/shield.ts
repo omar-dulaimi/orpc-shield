@@ -47,13 +47,17 @@ function findRuleInTree<TContext extends Context>(
       return null;
     }
 
-    const next = (current as IRules<TContext>)[segment];
+    // Annotated rather than inferred: `current` is assigned from `next` below, so without this the
+    // two infer through each other and TypeScript reports TS7022.
+    const next: IRules<TContext> | IRule<TContext> | undefined = (current as IRules<TContext>)[
+      segment
+    ];
 
     if (!next) {
       return null;
     }
 
-    current = next as IRules<TContext> | IRule<TContext>;
+    current = next;
   }
 
   return isRule(current) ? current : null;
@@ -88,9 +92,9 @@ function validateRuleTree<TContext extends Context>(
 /**
  * Processes rule result and handles errors
  */
-function processRuleResult(result: RuleResult, path: Path): void {
+function processRuleResult(result: RuleResult, path: Path): unknown {
   if (result === true) {
-    return; // Allow access
+    return undefined; // Allow access, context unchanged
   }
 
   if (typeof result === 'string') {
@@ -99,6 +103,13 @@ function processRuleResult(result: RuleResult, path: Path): void {
 
   if (result instanceof Error) {
     throw new ShieldError(result.message, path);
+  }
+
+  // A rule may allow the call and replace the context for everything downstream. Checked before the
+  // deny branch, since an object is neither `true` nor an Error and would otherwise be read as a
+  // refusal.
+  if (result !== null && typeof result === 'object' && 'ctx' in result) {
+    return (result as { ctx: unknown }).ctx;
   }
 
   // result is false
@@ -113,7 +124,7 @@ export function shield<TContext extends Context = Context>(
   options: ShieldOptions<TContext> = {}
 ): ORPCMiddleware<TContext> {
   const {
-    fallbackRule = allow as IRule<TContext>,
+    fallbackRule = allow,
     allowExternalErrors = true,
     debug = false,
     denyErrorCode,
@@ -152,14 +163,24 @@ export function shield<TContext extends Context = Context>(
       });
 
       if (debug) {
-        console.log(`[oRPC Shield] Rule result for ${path.join('.')}: ${result}`);
+        // Kept as one string so the shape of this line does not change. `RuleResult` now includes
+        // an object, which cannot be interpolated directly.
+        const shown =
+          result instanceof Error
+            ? result.message
+            : typeof result === 'object'
+              ? JSON.stringify(result)
+              : String(result);
+        console.log(`[oRPC Shield] Rule result for ${path.join('.')}: ${shown}`);
       }
 
       // Process the result
-      processRuleResult(result, path);
+      const extendedContext = processRuleResult(result, path);
 
       // If we get here, access is allowed - call next middleware
-      return next({ context });
+      // The rule author decides the shape of a replacement context, so it is taken on trust here in
+      // the same way the surrounding oRPC types treat the original.
+      return next({ context: (extendedContext ?? context) as typeof context });
     } catch (error) {
       if (debug) {
         console.error(`[oRPC Shield] Error processing ${path.join('.')}:`, error);

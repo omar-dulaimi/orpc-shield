@@ -7,7 +7,14 @@ export type Path = ReadonlyArray<string>;
 /**
  * Result types for rule evaluation
  */
-export type RuleResult = boolean | string | Error;
+export type RuleResult = boolean | string | Error | ContextExtension;
+
+/**
+ * A rule may allow the call and hand a replacement context to everything downstream, which is what
+ * the Context Extension section of the README describes. Returning one was previously not
+ * representable here, and at runtime fell through to the deny branch.
+ */
+export type ContextExtension<TContext = unknown> = { ctx: TContext };
 
 /**
  * Context type for oRPC middleware
