@@ -2,7 +2,7 @@
 
 <div align="center">
 
-Type‑safe authorization for modern oRPC apps — lightweight, composable, fast.
+Type‑safe authorization for modern oRPC apps: lightweight, composable, fast.
 
 <p>
   <a href="https://www.npmjs.com/package/orpc-shield"><img src="https://img.shields.io/npm/v/orpc-shield?style=flat-square&color=blue" alt="npm version" /></a>
@@ -93,11 +93,11 @@ const canModify = and(canEdit, or(canAdmin, allow));
 <details>
 <summary><b>API Surface</b></summary>
 
-- `rule<TContext, TInput>()(fn)` – define a rule
+- `rule<TContext, TInput>()(fn)`: define a rule
 - Built‑ins: `allow`, `deny`, `denyWithMessage(msg)`
 - Operators: `and`, `or`, `not`, `chain`, `race`
 - `shield(rules, { denyErrorCode?, debug?, allowExternalErrors? })`
-- `shieldDebug(...)` – shield with debug enabled
+- `shieldDebug(...)`: shield with debug enabled
 
 </details>
 
@@ -597,5 +597,5 @@ Made with ❤️ by [Omar Dulaimi](https://github.com/omar-dulaimi)
 
 ## Legal
 
-- License: MIT — see the `LICENSE` file.
+- License: MIT. See the `LICENSE` file.
 - Copyright © 2025 Omar Dulaimi.

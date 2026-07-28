@@ -1,4 +1,4 @@
-# oRPC Shield – cURL Test Guide
+# oRPC Shield cURL Test Guide
 
 This example exposes OpenAPI endpoints at `http://localhost:3001` (root) and
 applies `orpc-shield` as a global middleware. Context is derived from request
