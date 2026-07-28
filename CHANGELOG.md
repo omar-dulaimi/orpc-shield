@@ -1,3 +1,15 @@
+## [1.0.1](https://github.com/omar-dulaimi/orpc-shield/compare/v1.0.0...v1.0.1) (2026-07-28)
+
+### Bug Fixes
+
+- **config:** make lint installable and stop publishing the build cache
+  ([72cff1b](https://github.com/omar-dulaimi/orpc-shield/commit/72cff1be73051623f27df183f57d74084c798044))
+- **deps:** remove the npm lockfiles that nothing installs from
+  ([a925b88](https://github.com/omar-dulaimi/orpc-shield/commit/a925b889d3fba597f4014ee874ce8bdb1ec02b7f))
+- implement the documented context extension
+  ([d3dc4cf](https://github.com/omar-dulaimi/orpc-shield/commit/d3dc4cf47e861d53a3546b32d227f09dff1cf52c)),
+  closes [#83](https://github.com/omar-dulaimi/orpc-shield/issues/83)
+
 # 1.0.0 (2025-11-22)
 
 ### Bug Fixes
