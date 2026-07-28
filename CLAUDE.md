@@ -16,8 +16,8 @@ that matches oRPC's single procedure model.
 
 - `npm run build` - Compile TypeScript to JavaScript (outputs to `dist/`)
 - `npm run prebuild` - Clean the dist folder before building
-- `npm run release` - Build and publish the package (runs `./package.sh` then
-  publishes from `package/` dir)
+- `npm run semantic-release` - Publish from the repository root; CI only. The
+  tarball is whatever `files` selects, so `npm run build` must have run first.
 - `npm run prettier` - Format code using Prettier
 
 ## Testing

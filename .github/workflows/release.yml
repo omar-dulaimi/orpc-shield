@@ -48,11 +48,10 @@ jobs:
       - name: Test
         run: pnpm test
 
-      - name: Prepare package workspace
-        run: mkdir -p package
-
-      - name: Build package artifacts
-        run: ./package.sh
+      # @semantic-release/npm publishes from the repository root, and `files` only ships `dist/**`.
+      # Build here so that what gets packed is explicit rather than a side effect of `pretest`.
+      - name: Build
+        run: pnpm build
 
       # No npm token: the package is configured for Trusted Publishing with tokens disallowed, so
       # auth is the OIDC exchange alone. Setting NPM_TOKEN here would write a conflicting .npmrc.

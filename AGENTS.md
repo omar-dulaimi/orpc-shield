@@ -54,5 +54,5 @@
 - Node 18+ recommended. Do not log secrets; avoid side effects in rules.
 - Pre-commit runs lint, typecheck, and tests via Husky; ensure a clean run
   before pushing.
-- Publishing (`pnpm release`) is maintainer-only; contributors should not run
-  release scripts.
+- Publishing happens only in CI, through `pnpm semantic-release` on `master`.
+  There is no local publish script; contributors should not try to publish.
